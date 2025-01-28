@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-
 
 const chats = [
   { id: '1', name: 'Kanika Singh', message: 'Alright, I have booked our tickets. See you at the movies.', time: '12:42 PM', avatar: 'https://via.placeholder.com/50' },
@@ -13,13 +12,18 @@ const chats = [
 
 export default function ChatList() {
   const router = useRouter();
+  const [searchText, setSearchText] = useState('');
+
+  // Filter chats based on the search text
+  const filteredChats = chats.filter((chat) =>
+    chat.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const renderChat = ({ item }: { item: typeof chats[0] }) => (
     <TouchableOpacity
-    style={styles.chatItem}
-    onPress={() => router.push(`/chat/${item.id}`)}
-    accessibilityLabel={`Open chat with ${item.name}`}
- // Navigate to individual chat screen
+      style={styles.chatItem}
+      onPress={() => router.push(`/chat/${item.id}`)}
+      accessibilityLabel={`Open chat with ${item.name}`}
     >
       <Image source={{ uri: item.avatar }} style={styles.avatar} />
       <View style={styles.chatContent}>
@@ -40,16 +44,18 @@ export default function ChatList() {
           style={styles.searchInput}
           placeholder="Search"
           placeholderTextColor="#999"
+          value={searchText}
+          onChangeText={(text) => setSearchText(text)}
         />
       </View>
       <FlatList
-        data={chats}
+        data={filteredChats}
         keyExtractor={(item) => item.id}
         renderItem={renderChat}
         contentContainerStyle={styles.chatList}
+        ListEmptyComponent={<Text style={styles.noResultsText}>No results found.</Text>} // Handle no results
       />
     </View>
-    
   );
 }
 
@@ -115,5 +121,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#aaa',
     marginLeft: 10,
+  },
+  noResultsText: {
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 16,
+    marginTop: 20,
   },
 });
