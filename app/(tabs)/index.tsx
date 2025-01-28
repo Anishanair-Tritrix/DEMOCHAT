@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -12,6 +12,8 @@ const chats = [
 
 export default function ChatList() {
   const router = useRouter();
+  const [searchText, setSearchText] = useState('');
+  const [filteredChats, setFilteredChats] = useState(chats);
 
   const renderChat = ({ item }: { item: typeof chats[0] }) => (
     <TouchableOpacity
@@ -34,6 +36,17 @@ export default function ChatList() {
       <Text style={styles.chatTime}>{item.time}</Text>
     </TouchableOpacity>
   );
+
+  React.useEffect(() => {
+    setFilteredChats(
+      chats.filter(chat =>
+        chat.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        chat.message.toLowerCase().includes(searchText.toLowerCase())
+      )
+    );
+  }, [searchText]);
+
+
 
   return (
     <View style={styles.container}>
